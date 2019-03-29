@@ -25,12 +25,24 @@ import com.stealthcopter.networktools.ARPInfo;
 import com.stealthcopter.networktools.SubnetDevices;
 import com.stealthcopter.networktools.subnet.Device;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import pl.droidsonroids.gif.GifImageView;
+
+import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
 
 public class MainActivity extends AppCompatActivity {
     ImageView bgapp, clover;
@@ -40,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
     GifImageView gifImageView;
     TextView textView;
     HashMap<String, String> ipmac;
-    String macAddress = "5c:cf:7f:18:76:4f"; //5c:cf:7f:18:76:4f
+    String macAddress = "5c:cf:7f:18:76:4f", ip = ""; //5c:cf:7f:18:76:4f
     Boolean isanimationshow = true,show=false;
     ProgressBar progressBar;
     private int width, height;
@@ -93,10 +105,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void fan(View v) {
         if (Fan) {
+            String flink = "http://"+ip+"/LED3=ON";
+            webrequest(flink);
             fan.setVisibility(View.INVISIBLE);
             gifImageView.setVisibility(View.VISIBLE);
             Fan = false;
         } else {
+            String flink = "http://"+ip+"/LED3=OFF";
+            webrequest(flink);
             fan.setVisibility(View.VISIBLE);
             gifImageView.setVisibility(View.INVISIBLE);
             Fan = true;
@@ -106,10 +122,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void swith(View v) {
         if (swith) {
+            String flink = "http://"+ip+"/LED2=ON";
+            webrequest(flink);
             switchoff.setVisibility(View.INVISIBLE);
             switchon.setVisibility(View.VISIBLE);
             swith = false;
         } else {
+            String flink = "http://"+ip+"/LED2=OFF";
+            webrequest(flink);
             switchoff.setVisibility(View.VISIBLE);
             switchon.setVisibility(View.INVISIBLE);
             swith = true;
@@ -120,8 +140,12 @@ public class MainActivity extends AppCompatActivity {
         if (bulb1) {
             bulb1off.setVisibility(View.INVISIBLE);
             bulb1on.setVisibility(View.VISIBLE);
+            String flink = "http://"+ip+"/LED1=ON";
+            webrequest(flink);
             bulb1 = false;
         } else {
+            String flink = "http://"+ip+"/LED1=OFF";
+            webrequest(flink);
             bulb1off.setVisibility(View.VISIBLE);
             bulb1on.setVisibility(View.INVISIBLE);
             bulb1 = true;
@@ -130,10 +154,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void bulb2(View v) {
         if (bulb2) {
+            String flink = "http://"+ip+"/LED4=ON";
+            webrequest(flink);
             bulb2off.setVisibility(View.INVISIBLE);
             bulb2on.setVisibility(View.VISIBLE);
             bulb2 = false;
         } else {
+            String flink = "http://"+ip+"/LED4=OFF";
+            webrequest(flink);
             bulb2off.setVisibility(View.VISIBLE);
             bulb2on.setVisibility(View.INVISIBLE);
             bulb2 = true;
@@ -162,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public class GetIP extends AsyncTask<String, String, String> {
-        String ip = "";
 
         @Override
         protected void onPreExecute() {
@@ -216,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void GenLinks(String s) {
-
             if (show){
             menus.setVisibility(View.VISIBLE);
             menus.startAnimation(frombottom);
@@ -227,6 +253,26 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "IP not Found Please Try again..", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public boolean webrequest(String s){
+        OkHttpClient client = new OkHttpClient();
+
+        Request request =  new Request.Builder()
+                            .url(s)
+                            .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                Log.d("TAG",e.toString());
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d("TAG","onResponseMethod Called");
+            }
+        });
+        return false;
     }
 
 }
